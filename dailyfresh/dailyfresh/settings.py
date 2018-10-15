@@ -38,7 +38,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'df_user',
-    'df_goods'
+    'df_goods',
+    'df_order',
+    'df_cart',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -116,9 +118,22 @@ MEDIA_ROOT=os.path.join(BASE_DIR,'static/media')
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = 'localhost'
 SESSION_REDIS_PORT = 6379
-SESSION_REDIS_DB = 0
+SESSION_REDIS_DB = 2
 SESSION_REDIS_PASSWORD = ''
 SESSION_REDIS_PREFIX = 'session'
 
 #配置django认证系统使用的模型类
 AUTH_USER_MODEL='df_user.User'
+
+#配置发送邮件
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST='smtp.163.com'  #smtp服务器
+EMAIL_PORT=25
+EMAIL_HOST_USER='13592521539@163.com' #发送邮件的邮箱
+EMAIL_HOST_PASSWORD='1234ll'  #在邮箱中设置的客服端的授权密码
+EMAIL_FROM='天天生鲜<13592521539@163.com>'  #收件人看到的发件人
+
+
+#配置登录时的url
+LOGIN_URL='/user/login/'
+

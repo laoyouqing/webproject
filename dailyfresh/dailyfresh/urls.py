@@ -20,4 +20,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^user/', include('df_user.urls',namespace='user')),
     url(r'^goods/', include('df_goods.urls',namespace='goods')),
+    url(r'^order/', include('df_order.urls',namespace='order')),
+    url(r'^cart/', include('df_cart.urls',namespace='cart')),
 ]
