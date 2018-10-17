@@ -14,6 +14,7 @@ from dailyfresh  import settings
 from django.contrib.auth.hashers import make_password
 from celery_task.tasks import send_email_task
 from django.contrib.auth.decorators import login_required
+import re
 
 def my_md5(value):
     m=hashlib.md5()
@@ -265,13 +266,14 @@ def veridate_code(request):
 
 @login_required
 def info(request):
-    user_id = request.session.get('_auth_user_id')
-    # user_id=request.user.id
-    user = User.objects.get(id=user_id)
-    userinfo=user.userinfo_set.all()
-    if userinfo:
-        userinfo = userinfo[0]
-    context = {'title': '天天生鲜订单页面', 'page_name': 1,'userinfo':userinfo,'page':1}
+    user = request.user
+    if request.method == 'GET':
+        try:
+            address = Address.objects.get(user=user, is_default=True)
+        except:
+            address = None
+
+    context = {'title': '天天生鲜订单页面', 'page_name': 1,'address':address,'page':1}
     return render(request,'df_user/user_center_info.html',context)
 
 @login_required
@@ -281,41 +283,164 @@ def order(request):
 
 @login_required
 def site(request):
-    user_id = request.session.get('_auth_user_id')
-    # user_id=request.user.id
-
+    user = request.user
     if request.method=='GET':
-        user=User.objects.get(id=user_id)
-        userinfo=user.userinfo_set.all()
-        if userinfo:
-            userinfo=userinfo[0]
+        address1 = Address.objects.filter(user=user)
+        try:
+            address=Address.objects.get(user=user,is_default=True)
+        except:
+            address=None
+        context = {'title': '天天生鲜用户中心', 'page_name': 1, 'address': address, 'page': 3, 'info': info,'address1':address1}
+        return render(request, 'df_user/user_center_site.html', context)
 
-    if request.method=='POST':
-        id= request.POST.get('id')
+
+def address_handler(request):
+    id=request.GET.get('id')
+    try:
+        user=request.user
+        address = Address.objects.get(user=user, is_default=True)
+        address.is_default = False
+        address.save()
+    except:
+        pass
+    address1=Address.objects.get(id=id)
+    address1.is_default=True
+    address1.save()
+    return redirect('/user/site/')
+
+class EditorView(View):
+    def get(self,request,id):
+        address=Address.objects.get(id=id)
+        addr=address.addr
+        #对地址进行分割
+        addrlist=addr.split('-')
+
+        #通过区名字拿到对象
+        addr=Area.objects.get(title=addrlist[2])
+        #获取省市区的id
+        did=addr.id
+        cid=addr.parea_id
+        pid=addr.parea.parea_id
+
+        context = {'title': '编辑地址页面', 'page_name': 1, 'address':address,'addrlist': addrlist, 'page': 3,'pid':pid,'cid':cid,'did':did}
+        return render(request,'df_user/editor.html',context)
+
+    def post(self,request,id):
+        # 获取省市区的id
+        pro_id = request.POST.get('pro_id')
+        city_id = request.POST.get('city_id')
+        dis_id = request.POST.get('dis_id')
+        addr = request.POST.get('address')
+
+        # 根据区的id查询对象
+        dis = Area.objects.get(id=dis_id)
+
+        # 获取省市县名
+        dtitle = dis.title
+        ctitle = dis.parea.title
+        ptitle = dis.parea.parea.title
+
+
+        addr = ('-').join([ptitle, ctitle, dtitle, addr])
+
+        address=Address.objects.get(id=id)
+        address.username=request.POST.get('username')
+        address.postcode=request.POST.get('postcode')
+        address.phone=request.POST.get('phone')
+        address.addr=addr
+        address.save()
+        return redirect('/user/site/')
+
+
+class AddView(View):
+    def get(self,request):
+        context = {'title': '天天生鲜用户中心', 'page_name': 1, 'page': 3}
+        return render(request,'df_user/add.html',context)
+    def post(self,request):
+        '''地址的添加'''
         username = request.POST.get('username')
-        address = request.POST.get('address')
+        addr = request.POST.get('address')
         postcode = request.POST.get('postcode')
         phone = request.POST.get('phone')
-        #无用户信息
-        if id!='':
-            # 得到用户信息，更改
-            userinfo = UserInfo.objects.get(id=id)
-            if len(phone) > 11 or len(postcode) > 6 or len(username) > 30 or len(address) > 100:
-                context = {'title': '天天生鲜用户中心', 'page_name': 1, 'userinfo': userinfo, 'page': 3, 'info': '信息有误,请重新输入'}
-                return render(request, 'df_user/user_center_site.html', context)
-            try:
-                userinfo.user_id=user_id
-                userinfo.username=username
-                userinfo.address=address
-                userinfo.postcode=postcode
-                userinfo.phone=phone
-                userinfo.save()
-            except:
-                pass
 
-        else:
-           userinfo=UserInfo.objects.create(username=username,address=address,postcode=postcode,phone=phone,user_id=user_id)
+        #获取省市区的id
+        pro_id = request.POST.get('pro_id')
+        city_id = request.POST.get('city_id')
+        dis_id = request.POST.get('dis_id')
 
-    context = {'title': '天天生鲜用户中心', 'page_name': 1,'userinfo':userinfo,'page':3,'info':info}
-    return render(request,'df_user/user_center_site.html',context)
+        #根据区的id查询对象
+        dis=Area.objects.get(id=dis_id)
+
+        #获取省市县
+        dtitle=dis.title
+        ctitle=dis.parea.title
+        ptitle=dis.parea.parea.title
+
+        addr=('-').join([ptitle,ctitle,dtitle,addr])
+
+        user = request.user
+        address1 = Address.objects.filter(user=user)
+        try:
+            address = Address.objects.get(user=user, is_default=True)
+        except:
+            address = None
+
+        if len(phone) > 11 or len(postcode) > 6 or len(username) > 30 or len(addr) > 100:
+            context = {'title': '天天生鲜用户中心', 'page_name': 1, 'page': 3, 'info': '信息有误,请重新输入', 'address': address,
+                       'address1': address1}
+            return render(request, 'df_user/user_center_site.html', context)
+
+        if not all([username, addr, postcode, phone,pro_id,city_id,dis_id]):
+            context = {'title': '天天生鲜用户中心', 'page_name': 1, 'page': 3, 'info': '数据不完整', 'address': address,
+                       'address1': address1}
+            return render(request, 'df_user/user_center_site.html', context)
+
+        if not re.match(r'^1[3|4|5|7|8][0-9]{9}$', phone):
+            context = {'title': '天天生鲜用户中心', 'page_name': 1, 'page': 3, 'info': '手机格式不正确', 'address': address,
+                       'address1': address1}
+            return render(request, 'df_user/user_center_site.html', context)
+
+        # 业务逻辑：地址添加
+        # 用户新新添加的地址作为默认地址，如果原来有默认地址要取消
+        # 获取用户的默认地址
+        try:
+            address = Address.objects.get(user=user, is_default=True)
+            address.is_default = False
+            address.save()
+        except:
+            pass
+
+        address = Address.objects.create(username=username, addr=addr, postcode=postcode, phone=phone,
+                                         is_default=True,
+                                         user=user)
+
+        return redirect('/user/site/')
+
+
+def delete(request,id):
+    address=Address.objects.get(id=id)
+    address.delete()
+    return redirect('/user/site')
+
+
+#省市区选择
+def area(request):
+    return render(request,'booktest/area.html')
+
+
+def pro(request):
+    prolist=Area.objects.filter(parea__isnull=True)
+    list=[]
+    for item in prolist:
+        list.append([item.id,item.title])
+    return JsonResponse({'data':list})
+
+def city(request,id):
+    citylist=Area.objects.filter(parea_id=id)
+    list=[]
+    for item in citylist:
+        list.append({'id':item.id,'title':item.title})
+    return JsonResponse({'data':list})
+
+
 

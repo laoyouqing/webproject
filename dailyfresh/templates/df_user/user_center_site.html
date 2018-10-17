@@ -1,38 +1,45 @@
 {%extends 'df_user/base_center.html'%}
+
+
+{%block head%}
+    <script>
+    $(function () {
+        $('.choice').click(function () {
+            $.ajax({
+                'url':'/user/address_handler/',
+                'data':{'id':$(this).val()},
+        })
+
+        })
+    })
+    </script>
+{%endblock head%}
+
+
 {%block right%}
 <div class="right_content clearfix">
 				<h3 class="common_title2">收货地址</h3>
 				<div class="site_con">
-					<dl>
-						<dt>当前地址：</dt>
-						<dd>{{userinfo.address}} （{{userinfo.username}}收） {{userinfo.phone}}  {{userinfo.phone}}</dd>
-					</dl>
-				</div>
-				<h3 class="common_title2">编辑地址</h3>
-				<div class="site_con">
-					<form action="/user/site/" method="post">
-						{%csrf_token%}
-						<input type="hidden" name="id" value="{{userinfo.id}}">
-						<div class="form_group">
-							<label>收件人：</label>
-							<input type="text" name="username" value="{{userinfo.username}}">
-						</div>
-						<div class="form_group form_group2">
-							<label>详细地址：</label>
-							<textarea class="site_area" name="address">{{userinfo.address}}</textarea>
-						</div>
-						<div class="form_group">
-							<label>邮编：</label>
-							<input type="text" name="postcode" value="{{userinfo.postcode}}" maxlength="6" oninput = "value=value.replace(/[^\d]/g,'')">
-						</div>
-						<div class="form_group">
-							<label>手机：</label>
-							<input type="text" name="phone" value="{{userinfo.phone}}" maxlength="11" oninput = "value=value.replace(/[^\d]/g,'')">
-						</div>
 
-						<input type="submit" name="" value="提交" class="info_submit">
-                        <h1 style="font-size: 18px;color: red">{{ info }}</h1>
-					</form>
+					<dl>
+                    {% for i in address1 %}
+                        {% if address == i %}
+						<dd>{{i.addr}} （{{i.username}}收） {{i.postcode}}  {{i.phone}}
+                            <input type="radio" value="{{ i.id }}" name="choice" checked class="choice">默认
+                        <a href="/user/editor/{{ i.id }}/">编辑</a>
+                        <a href="/user/delete/{{ i.id }}/">删除</a>
+                        </dd>
+                        {% else %}
+                        <dd>{{i.addr}} （{{i.username}}收） {{i.postcode}}  {{i.phone}}
+                            <input type="radio" value="{{ i.id }}" name="choice" class="choice">
+                        <a href="/user/editor/{{ i.id }}/">编辑</a>
+                        <a href="/user/delete/{{ i.id }}/">删除</a>
+                        </dd>
+					    {% endif %}
+
+                    {% endfor %}
+                        <dd><a href="/user/add/" style="font-size: 16px">新增地址</a></dd>
+                    </dl>
 				</div>
 		</div>
 {%endblock right%}

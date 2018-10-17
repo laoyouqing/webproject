@@ -18,9 +18,26 @@ class User(AbstractUser,BaseModel):
         verbose_name_plural=verbose_name
 
 
-class UserInfo(models.Model):
+class Address(BaseModel):
+    '''地址模型类'''
     username=models.CharField(max_length=30)
-    address=models.CharField(max_length=100)
+    addr=models.CharField(max_length=100)
     postcode=models.CharField(max_length=6)
     phone=models.CharField(max_length=11)
+    is_default=models.BooleanField(default=False)
     user=models.ForeignKey(User)
+
+    class Meta:
+        db_table='df_address'
+        verbose_name='地址'
+        verbose_name_plural=verbose_name
+
+
+class Area(models.Model):
+    title=models.CharField(max_length=20)
+    parea=models.ForeignKey("self",null=True,blank=True)
+
+    class Meta:
+        db_table='df_area'
+        verbose_name='省市区'
+        verbose_name_plural=verbose_name

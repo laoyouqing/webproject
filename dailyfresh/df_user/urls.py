@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from . import views
-from .views import LoginView,ActiveView,ForgetView,ResetView
+from .views import LoginView,ActiveView,ForgetView,ResetView,EditorView,AddView
 
 urlpatterns=[
     url(r'^register/$',views.register,name='register'),
@@ -20,4 +20,14 @@ urlpatterns=[
     url(r'^info/$',views.info,name='info'),
     url(r'^order/$',views.order,name='order'),
     url(r'^site/$',views.site,name='site'),
+
+    url(r'^address_handler/$',views.address_handler,name='address_handler'),
+
+    url(r'^editor/(\d+)/$',EditorView.as_view(),name='editor'),
+    url(r'^delete/(\d+)/$',views.delete,name='delete'),
+    url(r'^add/$',AddView.as_view(),name='add'),
+
+    url(r'^area$',views.area,name='area'),
+    url(r'^pro/$',views.pro,name='pro'),
+    url(r'^city/(\d+)/$',views.city,name='city'),
 ]

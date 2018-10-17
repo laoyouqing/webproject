@@ -1,0 +1,125 @@
+{%extends 'df_user/base_center.html'%}
+
+{%block head%}
+    <script type="text/javascript">
+        $(function () {
+            //使用ajax加载省信息
+            $.get('/user/pro/',function (data) {
+                pro=$('#pro')
+                $.each(data.data,function (index,item) {
+                    if(item[0] == {{ pid }}){
+                         pro.append('<option value="'+item[0]+'" selected>'+item[1]+'</option>')
+                    }else{
+                        pro.append('<option value="'+item[0]+'">'+item[1]+'</option>')
+                    }
+
+                })
+
+            })
+
+            $.get('/user/city/{{ pid }}/',function (data) {
+                city=$('#city')
+                $.each(data.data,function (index,item) {
+                    if(item.id == {{ cid }}){
+                         city.append('<option value="'+item.id+'" selected>'+item.title+'</option>')
+                    }else{
+                        city.append('<option value="'+item.id+'">'+item.title+'</option>')
+                    }
+
+                })
+
+            })
+
+            $.get('/user/city/{{ cid }}/',function (data) {
+                dis=$('#dis')
+                $.each(data.data,function (index,item) {
+                    if(item.id == {{ did }}){
+                         dis.append('<option value="'+item.id+'" selected>'+item.title+'</option>')
+                    }else{
+                        dis.append('<option value="'+item.id+'">'+item.title+'</option>')
+                    }
+
+                })
+
+            })
+
+
+            //查询市的信息
+            $('#pro').change(function () {
+                //area110000
+                $.get('/user/city'+$(this).val()+'/',function (list) {
+                    city=$('#city')
+                    dis=$('#dis')
+                    dis.empty().append('<option value="0">请选择区</option>')
+                    //{data:[{},{}<{}]}
+                    city.empty().append('<option value="0">请选择市</option>')
+                    $.each(list.data,function (index,item) {
+                        //{a:b,aa:bb} json
+                        city.append('<option value="'+item.id+'">'+item.title+'</option>')
+                    })
+                })
+            })
+
+
+            //查询区的信息
+            $('#city').change(function () {
+                $.get('/user/city'+$(this).val()+'/',function (list) {
+                    dis=$('#dis')
+                    dis.empty().append('<option value="0">请选择区</option>')
+                    $.each(list.data,function (index,item) {
+                        dis.append('<option value="'+item.id+'">'+item.title+'</option>')
+                    })
+
+                })
+            })
+
+        })
+
+    </script>
+
+{%endblock head%}
+
+
+{%block right%}
+<div class="right_content clearfix">
+
+				<h3 class="common_title2">编辑地址</h3>
+				<div class="site_con">
+					<form action="/user/editor/{{ address.id }}/" method="post">
+						{%csrf_token%}
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" name="username" value="{{address.username}}">
+						</div>
+                        <div class="form_group">
+                            <label>地址：</label>
+                            <select id="pro" name="pro_id" >
+                                <option value="0">请选择省</option>
+                            </select>
+                            <select id="city" name="city_id">
+                                <option value="0">请选择市</option>
+                            </select>
+                            <select id="dis" name="dis_id">
+                                <option value="0">请选择区</option>
+                            </select>
+                        </div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea class="site_area" name="address">{{addrlist.3}}</textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" name="postcode" value="{{address.postcode}}" maxlength="6" oninput = "value=value.replace(/[^\d]/g,'')">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="text" name="phone" value="{{address.phone}}" maxlength="11" oninput = "value=value.replace(/[^\d]/g,'')">
+						</div>
+
+						<input type="submit" name="" value="提交" class="info_submit">
+                        <h1 style="font-size: 18px;color: red">{{ info }}</h1>
+					</form>
+				</div>
+		</div>
+{%endblock right%}
+

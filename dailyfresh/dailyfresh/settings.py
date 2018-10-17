@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'df_goods',
     'df_order',
     'df_cart',
+    'tinymce',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -137,3 +138,19 @@ EMAIL_FROM='天天生鲜<13592521539@163.com>'  #收件人看到的发件人
 #配置登录时的url
 LOGIN_URL='/user/login/'
 
+
+#富文本编译器默认配置
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'width': 600,
+    'height': 400,
+}
+
+HOST_IP='192.168.12.186'
+
+#FastDFS设置-自定义存储类
+DEFAULT_FILE_STORAGE='utils.fdfs.storage_util.FDFSStorage'
+#FastDFS设置-客户端配置文件
+FDFS_CLIENT_CONF='utils/fdfs/client.conf'
+#FastDFS设置-URL
+FDFS_URL='http://%s:9999/'%HOST_IP
