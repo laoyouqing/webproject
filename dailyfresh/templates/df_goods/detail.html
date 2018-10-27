@@ -1,53 +1,223 @@
 {%extends 'df_goods/base.html'%}
+
+{%block head%}
+<script type="text/javascript" src="/static/js/jquery.imagezoom.min.js"></script>
+<script type="text/javascript">
+
+			$(function(){
+				$(".jqzoom").imagezoom();
+				$("#thumblist li a").click(function(){
+					//增加点击的li的class:tb-selected，去掉其他的tb-selecte
+					$(this).parents("li").addClass("tb-selected").siblings().removeClass("tb-selected");
+					//赋值属性
+					$(".jqzoom").attr('src',$(this).find("img").attr("mid"));
+					$(".jqzoom").attr('rel',$(this).find("img").attr("big"));
+				});
+			});
+</script>
+
+
+<style type="text/css">
+/* box */
+.box{width:610px;margin:0 auto;}
+.tb-pic a{display:table-cell;text-align:center;vertical-align:middle;}
+.tb-pic a img{vertical-align:middle;}
+.tb-pic a{*display:block;*font-family:Arial;*line-height:1;}
+.tb-thumb{margin:10px 0 0;overflow:hidden;}
+.tb-thumb li{background:none repeat scroll 0 0 transparent;float:left;height:42px;margin:0 6px 0 0;overflow:hidden;padding:1px;}
+.tb-s310, .tb-s310 a{height:310px;width:310px;}
+.tb-s310, .tb-s310 img{max-height:310px;max-width:310px;}
+.tb-s310 a{*font-size:271px;}
+.tb-s40 a{*font-size:35px;}
+.tb-s40, .tb-s40 a{height:40px;width:40px;}
+.tb-booth{border:1px solid #CDCDCD;position:relative;z-index:1;}
+.tb-thumb .tb-selected{background:none repeat scroll 0 0 #C30008;height:40px;padding:2px;}
+.tb-thumb .tb-selected div{background-color:#FFFFFF;border:medium none;}
+.tb-thumb li div{border:1px solid #CDCDCD;}
+.zoomDiv{z-index:999;position:absolute;top:0px;left:0px;width:180px;height:180px;background:#ffffff;border:1px solid #CCCCCC;display:none;text-align:center;overflow:hidden;}
+.zoomMask{position:absolute;background:url("/static/images/mask.png") repeat scroll 0 0 transparent;cursor:move;z-index:1;}
+#img_small{
+    width: 40px;
+}
+
+</style>
+
+
+
+
+
+<script>
+    $(function () {
+        price={{ sku.price }}
+        $('.add').click(function () {
+            num=parseInt($('.num_show').val())
+            $('.num_show').val(num+1)
+            num=parseInt($('.num_show').val())
+            $('.total em').text((num*price).toFixed(2)+'元')
+        })
+
+         $('.minus').click(function () {
+             num=parseInt($('.num_show').val())
+             if(num<=1){
+                 return
+             }
+             $('.num_show').val(num-1)
+             num=parseInt($('.num_show').val())
+
+             $('.total em').text((num*price).toFixed(2)+'元')
+        })
+
+        $('.num_show').change(function () {
+            num=parseInt($('.num_show').val())
+            $('.num_show').val(num)
+            $('.total em').text((num*price).toFixed(2)+'元')
+        })
+
+
+        $("#tag_detail").click(function () {
+            $("#tag_comment").removeClass("active");
+            $(this).addClass("active");
+            $("#tab_comment").hide();
+            $("#tab_detail").show();
+        });
+        $("#tag_comment").click(function () {
+            $("#tag_detail").removeClass("active");
+            $(this).addClass("active");
+            $("#tab_detail").hide();
+            $("#tab_comment").show();
+        });
+
+        $('.reply').click(function () {
+            comment_id=$(this).attr('title')
+            $('.comment').hide()
+            $('.reply_comment').show()
+            $('#reply_id').val(comment_id)
+
+        })
+
+        $('.check').click(function () {
+            $.ajax({
+                "url":"/goods/comment/{{ sku.id }}",
+                "data":{"comment_id":$(this).attr('value')},
+                "success":function (data) {
+                    $('#show').html('')
+                   $.each(data.data,function (index,item) {
+                       $('#show').append('<p>'+item.id+'-'+item.content+'</p>').show()
+                   })
+                }
+            })
+        })
+
+
+    })
+</script>
+
+
+{%endblock head%}
+
 {% block detail %}
 <div class="breadcrumb">
-		<a href="#">全部分类</a>
+		<a href="/goods/">全部分类</a>
 		<span>></span>
-		<a href="#">新鲜水果</a>
+		<a href="/goods/list/{{ sku.id }}_1_1/">新鲜水果</a>
 		<span>></span>
 		<a href="#">商品详情</a>
 	</div>
 
 <div class="goods_detail_con clearfix">
-		<div class="goods_detail_pic fl"><img src="images/goods_detail.jpg"></div>
+
+<form method="post" action="/order/buy/">
+{% csrf_token %}
+<div class="goods_detail_con clearfix">
+        <div class="goods_detail_pic fl">
+            <div class="box">
+			<div class="tb-booth tb-pic tb-s310">
+				<a href="{{ sku.image.url }}"><img src="{{ sku.image.url }}" alt="{{ sku.name }}" rel="{{ sku.image.url }}" class="jqzoom" /></a>
+			</div>
+			<ul class="tb-thumb" id="thumblist">
+                <li class="tb-selected"><div class="tb-pic tb-s40"><a href="javascript:"><img src="{{sku.image.url }}" mid="{{ sku.image.url }}" big="{{ sku.image.url }}" id="img_small"></a></div></li>
+                {% for img in goodimage %}
+                <li><div class="tb-pic tb-s40"><a href="javascript:"><img src="{{ img.image.url }}" mid="{{ img.image.url }}" big="{{ img.image.url }}" id="img_small"></a></div></li>
+                {% endfor %}
+			</ul>
+		</div>
+		</div>
 
 		<div class="goods_detail_list fr">
-			<h3>大兴大棚草莓</h3>
-			<p>草莓浆果柔软多汁，味美爽口，适合速冻保鲜贮藏。草莓速冻后，可以保持原有的色、香、味，既便于贮藏，又便于外销。</p>
+			<h3>{{ sku.name }}</h3>
+			<p>{{ sku.desc }}</p>
 			<div class="prize_bar">
-				<span class="show_pirze">¥<em>16.80</em></span>
-				<span class="show_unit">单  位：500g</span>
+				<span class="show_pirze">¥<em>{{ sku.price }}</em></span>
+				<span class="show_unit">{{ sku.unite }}</span>
 			</div>
 			<div class="goods_num clearfix">
 				<div class="num_name fl">数 量：</div>
 				<div class="num_add fl">
-					<input type="text" class="num_show fl" value="1">
+					<input type="text" class="num_show fl" value="1" name="num_show">
 					<a href="javascript:;" class="add fr">+</a>
 					<a href="javascript:;" class="minus fr">-</a>
 				</div>
 			</div>
-			<div class="total">总价：<em>16.80元</em></div>
+			<div class="total">总价：<em>{{ sku.price }}</em></div>
+            <div>
+                <div>所有规则：</div>
+{#                <ul>#}
+{#                    {% for i in skus %}#}
+{#                    <li><a href="/goods/detail/{{ i.id }}">{{ i.name}}</a></li>#}
+{#                    {% endfor %}#}
+{#                </ul>#}
+
+            </div>
 			<div class="operate_btn">
-				<a href="javascript:;" class="buy_btn">立即购买</a>
-				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+                <input type="hidden" name="sku_id" value="{{ sku.id }}">
+                <input type="submit" name="buy_btn" value="立即购买" class="buy_btn">
+{#				<a href="javascript:;" class="buy_btn" id="buy_btn"  sku_id="{{ sku.id }}">立即购买</a>#}
+				<a href="javascript:;" class="add_cart" id="add_cart" sku_id="{{ sku.id }}">加入购物车</a>
 			</div>
 		</div>
 	</div>
+</form>
 {% endblock detail %}
 
 {% block left %}
 <div class="r_wrap fr clearfix">
 			<ul class="detail_tab clearfix">
-				<li class="active">商品介绍</li>
-				<li>评论</li>
+				<li class="active" id="tag_detail">商品介绍</li>
+				<li id="tag_comment">评论</li>
 			</ul>
 
-			<div class="tab_content">
+			<div class="tab_content" id="tab_detail">
 				<dl>
 					<dt>商品详情：</dt>
-					<dd>草莓采摘园位于北京大兴区 庞各庄镇四各庄村 ，每年1月-6月面向北京以及周围城市提供新鲜草莓采摘和精品礼盒装草莓，草莓品种多样丰富，个大香甜。所有草莓均严格按照有机标准培育，不使用任何化肥和农药。草莓在采摘期间免洗可以直接食用。欢迎喜欢草莓的市民前来采摘，也欢迎各大单位选购精品有机草莓礼盒，有机草莓礼盒是亲朋馈赠、福利送礼的最佳选择。 </dd>
+					<dd>{{ sku.goods.detail|safe }}</dd>
 				</dl>
 			</div>
+            <div class="tab_content" id="tab_comment">
+				<dl>
+                    <dt>商品评论：</dt>
+                    {% for comment in comments %}
+					<dd>{{ comment.id }}-{{ comment.content }} &nbsp;&nbsp;&nbsp;|
+                        <a href="javascript:" class="reply" title="{{ comment.id }}">回复评论</a>
+                        <a href="javascript:" ><span name="check" class="check" value="{{ comment.id }}">查看评论</span></a>
+                    </dd>
+                     <hr>
+                    {% endfor %}
+				</dl>
+
+                <div id="show" style="width: 1000px;height: 100px;background-color: #edfff9" hidden></div>
+
+			</div>
+            <div>
+                <form action="/goods/detail/{{ sku.id }}" method="post">
+                    {% csrf_token %}
+                <p class="comment">评论：<textarea name="comment"  rows="7" cols="40"></textarea></p>
+                    <input type="hidden" name="reply_id" value="" id="reply_id">
+                <p class="reply_comment" hidden>回复评论：<textarea   rows="7" cols="40" name="reply_comment"></textarea></p>
+                <p><input type="submit" value="提交"></p>
+                </form>
+            </div>
+
+
 
 		</div>
 	</div>
@@ -67,16 +237,34 @@
 
 		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
 		$('#add_cart').click(function(){
-			$(".add_jump").stop().animate({
-				'left': $to_y+7,
-				'top': $to_x+7},
-				"fast", function() {
-					$(".add_jump").fadeOut('fast',function(){
-						$('#show_count').html(2);
-					});
+		    //获取商品id和商品数量
+            sku_id=$(this).attr('sku_id')
+            count=$('.num_show').val()
+            csrf=$('input[name="csrfmiddlewaretoken"]').val()
+            //组织参数
+            params={'sku_id':sku_id,'count':count,'csrfmiddlewaretoken':csrf}
 
-			});
-		})
+            //发送ajax post请求，访问/cart/add
+            $.post('/cart/add/',params,function (data) {
+                if(data.res == 5){
+                    //添加成功
+                    $('.add_jump').css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+                    $(".add_jump").stop().animate({
+                        'left': $to_y+7,
+                        'top': $to_x+7},
+                        "fast", function() {
+                            $(".add_jump").fadeOut('fast',function(){
+                                $('#show_count').html(data.total_count);
+					    });
+			        });
+                }
+                else {
+                    //添加失败
+                    alert(data.errmsg)
+                }
+            })
+            })
+
 	</script>
 {%endblock foot%}
 

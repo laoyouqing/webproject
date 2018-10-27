@@ -1,0 +1,119 @@
+{%extends 'df_user/base_center.html'%}
+
+
+
+
+
+{%block right%}
+    {% csrf_token %}
+<div class="right_content clearfix">
+				<h3 class="common_title2">全部订单</h3>
+
+				<ul class="order_list_th w978 clearfix">
+					<li class="col01">{{ order.create_time }}</li>
+					<li class="col02">{{ order.order_id }}</li>
+					<li class="col02 stress">{{ order.get_order_status_display }}</li>
+				</ul>
+
+				<table class="order_list_table w980">
+					<tbody>
+						<tr>
+							<td width="55%">
+                                {% for order_sku in order_goods%}
+								<ul class="order_goods_list clearfix">
+									<li class="col011"><img src="{{ order_sku.sku.image.url }}"></li>
+									<li class="col021">{{ order_sku.sku.name }}<em>{{ order_sku.sku.price }}元/{{ order_sku.sku.unite }}</em></li>
+									<li class="col031">{{ order_sku.count }}</li>
+									<li class="col041">{{ order_sku.amount }}</li>
+                                    <li class="col051"><a href="/order/comment1/{{ order_sku.sku.id }}">去评价</a></li>
+								</ul>
+								{% endfor %}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+            </div>
+
+
+{%endblock right%}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{#{%extends 'base.html'%}#}
+{##}
+{#{%block head%}#}
+{##}
+{#{%endblock head%}#}
+{##}
+{#{%block search%}#}
+{#<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;提交订单</div>#}
+{#{%endblock search%}#}
+{##}
+{#{%block content%}#}
+{#    {% csrf_token %}#}
+{#<div class="total_count">全部商品<em class="tcount">2</em>件</div>#}
+{#	<ul class="cart_list_th clearfix">#}
+{#		<li class="col01">商品名称</li>#}
+{#		<li class="col02">商品单位</li>#}
+{#		<li class="col03">商品价格</li>#}
+{#		<li class="col04">数量</li>#}
+{#		<li class="col05">小计</li>#}
+{#		<li class="col06">操作</li>#}
+{#	</ul>#}
+{#    <form method="post" action="/order/">#}
+{#    {% csrf_token %}#}
+{#    {% for sku in order_goods %}#}
+{#        <ul class="cart_list_td clearfix" sku_id={{ sku.id }} >#}
+{#            <li class="col01"><input type="checkbox" name="sku_ids" checked value="{{ sku.id }}"></li>#}
+{#            <li class="col02"><img src="{{ sku.sku.image.url }}"></li>#}
+{#            <li class="col03">{{ sku.sku.name }}<br><em>{{ sku.sku.price }}/{{ sku.sku.unite }}</em></li>#}
+{#            <li class="col04">{{ sku.sku.unite }}</li>#}
+{#            <li class="col05">{{ sku.price }}</li>#}
+{#            <li class="col06">{{ sku.count }}</li>#}
+{#            <li class="col07">{{ sku.price }}*{{ sku.count }}</li>#}
+{#            <li class="col08"><a href="javascript:;" class="del_btn">评价</a></li>#}
+{#        </ul>#}
+{#    {% endfor %}#}
+{##}
+{##}
+{#    </form>#}
+{##}
+{#{%endblock content%}#}
+{##}

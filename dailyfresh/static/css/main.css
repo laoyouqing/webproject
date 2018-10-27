@@ -101,7 +101,9 @@ html,body{height:100%}
 .subnav li .egg{background:url(../images/icons.png) 28px -132px no-repeat;}
 .subnav li .vegetables{background:url(../images/icons.png) 28px -174px no-repeat;}
 .subnav li .ice{background:url(../images/icons.png) 28px -220px no-repeat;}
-
+.subnav{
+	z-index: 9999;
+}
 
 .slide{width:760px;height:270px;position:relative;overflow:hidden;}
 .slide .slide_pics{position:relative;left:0;top:0;width:760px;height:270px;}
@@ -390,7 +392,7 @@ html,body{height:100%}
 .settlements .col03 b{color:#ff0000;font-size:14px;padding:0 5px;}
 
 .settlements .col04{width:14%;text-align:center;float:right;}
-.settlements .col04 a{display:block;height:78px;background-color:#ff3d3d;text-align:center;line-height:78px;color:#fff;font-size:24px}
+.settlements .col04 input{display:block;weight:150px;height:78px;background-color:#ff3d3d;text-align:center;line-height:78px;color:#fff;font-size:24px}
 
 
 .common_title{width:1200px;margin:20px auto 0;font-size:14px;}
@@ -473,6 +475,14 @@ html,body{height:100%}
 .order_goods_list .col02 em{color:#999;margin-left:10px}
 .order_goods_list .col03{width:10%}
 .order_goods_list .col04{width:20%}
+
+.order_goods_list .col011{width:20%}
+.order_goods_list .col011 img{width:60px;height:60px;border:1px solid #ddd;margin:10px auto;}
+.order_goods_list .col021{width:30%;text-align:left;}
+.order_goods_list .col021 em{color:#999;margin-left:10px}
+.order_goods_list .col031{width:10%}
+.order_goods_list .col041{width:20%}
+.order_goods_list .col051{width:20%}
 
 .oper_btn{display:inline-block;border:1px solid #ddd;color:#666;padding:5px 10px}
 

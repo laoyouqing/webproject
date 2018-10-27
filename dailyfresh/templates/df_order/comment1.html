@@ -1,0 +1,11 @@
+{%extends 'df_user/base_center.html'%}
+{%block right%}
+
+    <form action="/order/comment1/{{ sku.id }}" method="post">
+        <h1 style="font-size: 16px;color: #ff8800;" >商品名称：{{ sku.name }}</h1>
+        <img src="{{ sku.image.url }}" >
+        {% csrf_token %}
+        <textarea name="comment" style="width: 500px;height: 200px;"></textarea>
+        <input type="submit" value="评价" style="color: #ff4200;width: 50px;height: 30px">
+    </form>
+{%endblock right%};

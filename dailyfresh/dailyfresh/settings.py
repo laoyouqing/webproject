@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'i#h^p30m4wcpben(h#vot2#jr5@b3+lz!wm_#dpk%8yc@b#!-&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'df_order',
     'df_cart',
     'tinymce',
+    'haystack',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -154,3 +155,30 @@ DEFAULT_FILE_STORAGE='utils.fdfs.storage_util.FDFSStorage'
 FDFS_CLIENT_CONF='utils/fdfs/client.conf'
 #FastDFS设置-URL
 FDFS_URL='http://%s:9999/'%HOST_IP
+
+
+#配置缓存
+CACHES = {
+    "default": {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "redis://192.168.12.186:6379/4",
+        'TIMEOUT': 60,
+    },
+}
+
+#配置搜索引擎
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        #使用whoosh引擎
+        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
+        #索引文件路径
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
+
+#当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+#配置收集静态文件路径
+STATIC_ROOT='/var/www/dailyfresh/static/'
+STATIC_URL='/static/'

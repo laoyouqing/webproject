@@ -18,7 +18,7 @@ urlpatterns=[
     url(r'^verity/$',views.verity,name='verity'),
 
     url(r'^info/$',views.info,name='info'),
-    url(r'^order/$',views.order,name='order'),
+    url(r'^order/(\d+)/$',views.order,name='order'),
     url(r'^site/$',views.site,name='site'),
 
     url(r'^address_handler/$',views.address_handler,name='address_handler'),

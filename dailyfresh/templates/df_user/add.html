@@ -13,7 +13,7 @@
              //查询市的信息
             $('#pro').change(function () {
                 //area110000
-                $.get('/user/city'+$(this).val()+'/',function (list) {
+                $.get('/user/city/'+$(this).val()+'/',function (list) {
                     city=$('#city')
                     dis=$('#dis')
                     dis.empty().append('<option value="0">请选择区</option>')
@@ -28,7 +28,7 @@
 
             //查询区的信息
             $('#city').change(function () {
-                $.get('/user/city'+$(this).val()+'/',function (list) {
+                $.get('/user/city/'+$(this).val()+'/',function (list) {
                     dis=$('#dis')
                     dis.empty().append('<option value="0">请选择区</option>')
                     $.each(list.data,function (index,item) {

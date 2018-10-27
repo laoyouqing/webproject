@@ -15,6 +15,12 @@ from django.contrib.auth.hashers import make_password
 from celery_task.tasks import send_email_task
 from django.contrib.auth.decorators import login_required
 import re
+from redis import StrictRedis
+from df_goods.models import *
+from df_order.models import *
+from django.core.paginator import Paginator
+
+
 
 def my_md5(value):
     m=hashlib.md5()
@@ -55,7 +61,7 @@ def register(request):
         s=TJSS(settings.SECRET_KEY,3600)
         info={'confirm':user.id}
         token=s.dumps(info).decode()
-        url='http://192.168.12.186:8887/user/active/%s'%token
+        url='http://192.168.12.186:8888/user/active/%s'%token
 
         #发邮件
         subject='天天生鲜欢迎信息'
@@ -176,7 +182,7 @@ class ForgetView(View):
                 s = TJSS(settings.SECRET_KEY, 3600)
                 info = {'confirm': user[0].id}
                 token = s.dumps(info).decode()
-                url = 'http://192.168.12.186:8887/user/reset/%s' % token
+                url = 'http://192.168.12.186:8888/user/reset/%s' % token
 
 
                 subject = '天天生鲜欢迎信息'
@@ -266,19 +272,86 @@ def veridate_code(request):
 
 @login_required
 def info(request):
+    skus = []
     user = request.user
+    redis_conn=StrictRedis(host='192.168.12.186',port=6379)
+    #判断键是否存在
+    if redis_conn.exists('history_%s'%user.id):
+        #判断键是否大于4
+        if redis_conn.llen('history_%s'%user.id)>=4:
+            history=redis_conn.lrange('history_%s'%user.id,0,4)
+        else:
+            history = redis_conn.lrange('history_%s' % user.id, 0, -1)
+        #获取最近浏览的四个商品
+        for sku_id in history:
+            sku=GoodsSKU.objects.get(id=sku_id)
+            skus.append(sku)
+
     if request.method == 'GET':
         try:
             address = Address.objects.get(user=user, is_default=True)
         except:
             address = None
 
-    context = {'title': '天天生鲜订单页面', 'page_name': 1,'address':address,'page':1}
+    context = {'title': '天天生鲜订单页面', 'page_name': 1,'address':address,'page':1,'skus':skus}
     return render(request,'df_user/user_center_info.html',context)
 
 @login_required
-def order(request):
-    context={'title':'天天生鲜订单页面','page_name':1,'page':2}
+def order(request,page):
+    #获取用户的订单信息
+    user=request.user
+    orders=OrderInfo.objects.filter(user=user).order_by('-create_time')
+
+    #遍历获取订单的信息
+    for order in orders:
+        order_skus=OrderGoods.objects.filter(order_id=order.order_id)
+
+        #遍历获取skus的小计
+        for order_sku in order_skus:
+            amount=order_sku.price*order_sku.count
+            #动态添加amount
+            order_sku.amount=amount
+
+        #动态的给订单添加属性，保存订单商品的信息
+        order.order_skus=order_skus
+        # print(order.order_skus)
+
+
+    #分页
+    paginator = Paginator(orders, 1)
+
+    try:
+        page=int(page)
+    except Exception as e:
+        page=1
+
+    if page>paginator.num_pages:
+        page=1
+
+    my_page = paginator.page(page)
+
+    now_page = int(page)
+    # 获取总页数
+    num_pages = paginator.num_pages
+
+    # 分页页数显示计算
+    # 是否是前三后三页
+    if num_pages <= 5:
+        page_list = paginator.page_range
+    elif now_page <= 3:
+        page_list = range(1, 6)
+    elif now_page >= num_pages - 2:
+        page_list = range(num_pages - 4, num_pages + 1)
+    else:
+        page_list = range(now_page - 2, now_page + 3)
+
+
+    context={'title':'天天生鲜订单页面',
+             'page_name':1,'page':2,
+             'page_list':page_list,
+             'my_page':my_page
+             }
+
     return render(request,'df_user/user_center_order.html',context)
 
 @login_required

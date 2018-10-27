@@ -7,16 +7,16 @@
                     <h1>全部商品分类</h1>
                     <span></span>
                     <ul class="subnav">
-                        <li><a href="#" class="fruit">新鲜水果</a></li>
-                        <li><a href="#" class="seafood">海鲜水产</a></li>
-                        <li><a href="#" class="meet">猪牛羊肉</a></li>
-                        <li><a href="#" class="egg">禽类蛋品</a></li>
-                        <li><a href="#" class="vegetables">新鲜蔬菜</a></li>
-                        <li><a href="#" class="ice">速冻食品</a></li>
+                        <li><a href="/goods/list/1_1_1/" class="fruit">新鲜水果</a></li>
+                        <li><a href="/goods/list/2_1_1/" class="seafood">海鲜水产</a></li>
+                        <li><a href="/goods/list/3_1_1/" class="meet">猪牛羊肉</a></li>
+                        <li><a href="/goods/list/4_1_1/" class="egg">禽类蛋品</a></li>
+                        <li><a href="/goods/list/5_1_1/" class="vegetables">新鲜蔬菜</a></li>
+                        <li><a href="/goods/list/5_1_1/" class="ice">速冻食品</a></li>
                     </ul>
                 </div>
                 <ul class="navlist fl">
-                    <li><a href="/">首页</a></li>
+                    <li><a href="/goods/">首页</a></li>
                     <li class="interval">|</li>
                     <li><a href="">手机生鲜</a></li>
                     <li class="interval">|</li>
@@ -33,14 +33,14 @@
 				<h3>新品推荐</h3>
 				<ul>
 					<li>
-						<a href="#"><img src="images/goods/goods001.jpg"></a>
-						<h4><a href="#">进口柠檬</a></h4>
-						<div class="prize">￥3.90</div>
+						<a href="/goods/detail/{{ news.0.id }}"><img src="{{ news.0.image.url }}"></a>
+						<h4><a href="/goods/detail/{{ news.0.id }}">{{ news.0.name }}</a></h4>
+						<div class="prize">{{ news.0.price }}</div>
 					</li>
 					<li>
-						<a href="#"><img src="images/goods/goods002.jpg"></a>
-						<h4><a href="#">玫瑰香葡萄</a></h4>
-						<div class="prize">￥16.80</div>
+						<a href="/goods/detail/{{ news.1.id }}"><img src="{{ news.1.image.url }}"></a>
+						<h4><a href="/goods/detail/{{ news.1.id }}">{{ news.1.name }}</a></h4>
+						<div class="prize">{{ news.1.price }}</div>
 					</li>
 				</ul>
 			</div>
